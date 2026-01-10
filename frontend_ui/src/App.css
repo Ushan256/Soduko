@@ -177,7 +177,8 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
 .btn.cheat {
   background: linear-gradient(135deg, #ff274b, #ff0077);
   border: 1px solid #ff274b;
-  color: #fff;
+  color: #000 !important; /* ensure visible text */
+  font-weight: 700;
   box-shadow: 0 0 12px rgba(255, 39, 75, 0.45), inset 0 0 8px rgba(255,255,255,0.05);
 }
 
@@ -204,9 +205,9 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
 .victory-card { padding: 28px; border: 2px solid var(--neon-pink); background: var(--bg-card); color: var(--text-main); text-align:center; }
 
 /* Grid Boundaries */
-.cell-input:nth-of-type(3n) { border-right: 4px solid var(--neon-blue); }
-.cell-input:nth-of-type(9n) { border-right: 1px solid var(--cell-border); }
-.row-boundary { border-bottom: 4px solid var(--neon-blue); }
+.cell-input:nth-of-type(3n) { border-right: 4px solid var(--neon-pink); }
+.cell-input:nth-of-type(9n) { border-right: 1px solid rgba(255,255,255,0.06); }
+.row-boundary { border-bottom: 4px solid var(--neon-pink); }
 
 /* ============================================================
    5. BUTTONS (Overlap Fix)

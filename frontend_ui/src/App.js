@@ -210,7 +210,7 @@ function App() {
             <div>- Hint: -50</div>
             <div>- Cheat (solve): -500</div>
           </div>
-          <button className="btn small cheat" onClick={handleCheat}>CHEAT: SOLVE BOARD</button>
+          <button className="btn small cheat" onClick={handleCheat}>{cheatLoading ? 'AI SOLVE ALL...' : 'AI SOLVE ALL'}</button>
         </section>
 
         <button className="btn logout-btn" onClick={()=>setIsLoggedIn(false)}>LOGOUT</button>
@@ -245,7 +245,7 @@ function App() {
           <button className="btn" onClick={getHint}>AI HINT</button>
           <button className="btn" onClick={() => {
             axios.post(`${API_BASE}/validate`, { grid }).then(r => {
-              if (r.data.result === "Win") setShowVictory(true);
+              if (r.data.result === "Win") { setShowVictory(true); setIsGameEnded(true); }
               else showToast(r.data.result);
             });
           }}>VERIFY</button>
