@@ -71,6 +71,19 @@ function App() {
     } catch (err) { showToast("Backend Error"); }
   }, [difficulty, isLoggedIn]);
 
+  const handleCheat = async () => {
+    if (!isLoggedIn || !gameStarted) return showToast("Start a game first");
+    try {
+      const res = await axios.post(`${API_BASE}/solve`, { grid });
+      setGrid(res.data.solution);
+      setInitialGrid(res.data.solution.map(row => [...row]));
+      setScore(s => Math.max(0, s - 500));
+      setShowVictory(true);
+      setIsGameEnded(true);
+      showToast("Solved by AI");
+    } catch (err) { showToast("Cheat failed"); }
+  };
+
   const handleInput = (row, col, value) => {
     if (!gameStarted || isPaused || isGameEnded || initialGrid[row][col] !== 0) return;
     const num = parseInt(value.toString().slice(-1));
@@ -153,7 +166,27 @@ function App() {
             <option value={65}>Extreme (65)</option>
           </select>
         </section>
-        <button className="btn" style={{marginTop:'auto'}} onClick={()=>setIsLoggedIn(false)}>LOGOUT</button>
+
+        <section className="leaderboard">
+          <h3>LEADERBOARD</h3>
+          <div className="leader-list">
+            {leaderboard.slice(0,5).map((p, i) => (
+              <div key={p.name} className="leader-row">{i+1}. {p.name} — {p.best}</div>
+            ))}
+          </div>
+        </section>
+
+        <section className="instructions">
+          <h3>INSTRUCTIONS</h3>
+          <div className="instr-text">
+            - Enter numbers 1-9 into empty cells.
+            <br/>- Correct entry: +100, Mistake: -25
+            <br/>- Hint: -50, Cheat (solve): -500
+          </div>
+          <button className="btn small" onClick={handleCheat}>CHEAT: SOLVE BOARD</button>
+        </section>
+
+        <button className="btn" style={{marginTop:'8px'}} onClick={()=>setIsLoggedIn(false)}>LOGOUT</button>
       </aside>
 
       <main className="container">
