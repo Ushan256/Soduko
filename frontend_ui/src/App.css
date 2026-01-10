@@ -13,7 +13,9 @@
   --cell-border: #222222;
   --cell-bg: #000000;
   --transition-speed: 0.4s;
-  --board-size: 450px;
+  
+  /* DESKTOP GEOMETRY - Prevents "Ruined" Display */
+  --board-size-desktop: 500px; 
   --glow-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
   
   /* Rank Colors */
@@ -69,6 +71,7 @@ body, html {
   height: 100vh;
   width: 100vw;
   background: var(--bg-dark);
+  flex-direction: row; /* Fixed: Sidebar Left, Game Right */
 }
 
 /* ============================================================
@@ -81,7 +84,7 @@ body, html {
   100% { transform: scale(1); box-shadow: 0 0 0px var(--neon-blue); }
 }
 
-/* Error Pulse for Incorrect Entries */
+/* Error Shake for Mistakes */
 @keyframes error-shake {
   0% { transform: translateX(0); color: var(--neon-pink); }
   25% { transform: translateX(-5px); }
@@ -96,7 +99,7 @@ body, html {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Board Scanline Effect */
+/* Board Scanline Decorative Effect */
 @keyframes scanline {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100%); }
@@ -133,28 +136,12 @@ body, html {
   text-align: center;
   animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
   border-radius: 4px;
-  max-width: 90%;
+  max-width: 400px;
 }
 
 .victory-card {
   border-color: var(--neon-pink);
   box-shadow: 0 0 40px var(--neon-pink);
-}
-
-.victory-card h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  text-shadow: 0 0 10px var(--neon-pink);
-}
-
-.victory-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin: 30px 0;
-  padding: 20px;
-  border-top: 1px solid #333;
-  border-bottom: 1px solid #333;
 }
 
 .login-input {
@@ -165,7 +152,7 @@ body, html {
   font-family: 'Orbitron';
   margin: 25px 0;
   outline: none;
-  width: 280px;
+  width: 100%;
   text-align: center;
   transition: 0.3s;
 }
@@ -176,10 +163,11 @@ body, html {
 }
 
 /* ============================================================
-   5. SIDEBAR & NAVIGATION (EXTENDED)
+   5. SIDEBAR & NAVIGATION
    ============================================================ */
 .sidebar {
-  width: 300px;
+  width: 320px;
+  min-width: 320px;
   border-right: 2px solid var(--neon-blue);
   background: var(--sidebar-bg);
   display: flex;
@@ -211,12 +199,9 @@ body, html {
   margin-top: 12px;
   display: block;
   opacity: 0.8;
-  transition: opacity 0.2s;
 }
 
-.switch-link:hover { opacity: 1; }
-
-/* Theme Toggle Switch */
+/* Theme Toggle UI */
 .theme-toggle {
   margin-top: 20px;
   display: flex;
@@ -245,26 +230,20 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   text-shadow: 0 0 5px var(--neon-blue);
   margin: 25px 0 15px 0;
   text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-/* Leaderboard List Extensions */
-.leaderboard-list { font-size: 0.85rem; margin-top: 15px; }
+/* Leaderboard Ranking Colors */
+.leaderboard-list { font-size: 0.85rem; }
 .leaderboard-item {
   display: flex;
   justify-content: space-between;
   padding: 12px 0;
   border-bottom: 1px solid rgba(255,255,255,0.08);
-  transition: 0.2s;
 }
-.leaderboard-item:hover { background: rgba(255, 255, 255, 0.03); padding-left: 5px; }
-
-/* Rank Formatting */
 .leaderboard-item:nth-child(1) span:first-child { color: var(--rank-1); font-weight: bold; }
 .leaderboard-item:nth-child(2) span:first-child { color: var(--rank-2); }
 .leaderboard-item:nth-child(3) span:first-child { color: var(--rank-3); }
 
-/* Difficulty Dropdown Styling */
 .diff-select {
   width: 100%;
   background: var(--bg-card);
@@ -274,14 +253,10 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   font-family: 'Orbitron';
   cursor: pointer;
   outline: none;
-  transition: 0.3s;
-  appearance: none;
 }
-.diff-select:hover { box-shadow: 0 0 10px var(--neon-blue); }
-.diff-select option { background: var(--bg-card); color: var(--text-main); }
 
 /* ============================================================
-   6. THE SUDOKU ENGINE (GRID SYSTEM)
+   6. THE SUDOKU ENGINE (FIXED GEOMETRY)
    ============================================================ */
 .container {
   flex-grow: 1;
@@ -290,13 +265,13 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   justify-content: center;
   align-items: center;
   padding: 30px;
+  height: 100vh;
 }
 
 .neon-text {
   font-size: 2.8rem;
   text-shadow: 0 0 20px var(--neon-pink);
   margin-bottom: 25px;
-  text-align: center;
   letter-spacing: 4px;
 }
 
@@ -304,25 +279,24 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   position: relative;
   overflow: hidden; 
   padding: 5px;
-  border-radius: 4px;
 }
 
-/* Board scanline decorative effect */
 .board-wrapper::after {
   content: "";
   position: absolute;
   top: 0; left: 0; width: 100%; height: 4px;
   background: linear-gradient(to right, transparent, var(--neon-blue), transparent);
-  opacity: 0.2;
-  animation: scanline 6s linear infinite;
+  opacity: 0.15;
+  animation: scanline 5s linear infinite;
   pointer-events: none;
 }
 
 .board {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  width: 95vw;
-  max-width: var(--board-size);
+  /* The Desktop Fix: Fixed Square dimensions */
+  width: var(--board-size-desktop); 
+  height: var(--board-size-desktop); 
   background: var(--neon-blue);
   padding: 5px;
   border: 5px solid var(--neon-blue);
@@ -331,7 +305,7 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
 
 .cell-input {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 100%;
   text-align: center;
   font-size: 1.6rem;
   background: var(--cell-bg);
@@ -341,12 +315,12 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  transition: background 0.2s, box-shadow 0.2s;
   -webkit-appearance: none;
   border-radius: 0;
 }
 
-/* Interactive Cell States */
+/* Interactive States */
 .cell-input:focus {
   background: rgba(0, 242, 255, 0.1) !important;
   box-shadow: inset 0 0 8px var(--neon-blue);
@@ -357,8 +331,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   background: rgba(255, 0, 119, 0.25) !important;
   border: 1px solid var(--neon-pink);
   box-shadow: inset 0 0 12px var(--neon-pink);
-  transform: scale(1.02);
-  z-index: 2;
 }
 
 .cell-input.fixed {
@@ -367,18 +339,16 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   background: rgba(0, 242, 255, 0.04);
 }
 
-.cell-input.hint-pulse {
-  animation: ai-glow 1.5s ease-out;
-}
+.cell-input.hint-pulse { animation: ai-glow 1.5s ease-out; }
 
-/* Sudoku 3x3 Boundaries - High Visibility */
+/* 3x3 Boundaries */
 .cell-input:nth-of-type(3n) { border-right: 5px solid var(--neon-blue); }
 .cell-input:nth-of-type(9n) { border-right: 1px solid var(--cell-border); }
 .row-boundary { border-bottom: 5px solid var(--neon-blue); }
 
 /* ============================================================
-   7. STATS, BUTTONS & TOASTS
-   =========================================================== */
+   7. STATS & BUTTONS
+   ============================================================ */
 .stats-bar {
   display: flex;
   gap: 50px;
@@ -391,8 +361,7 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
 .buttons-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  width: 95vw;
-  max-width: var(--board-size);
+  width: var(--board-size-desktop);
   gap: 15px;
   margin-top: 30px;
 }
@@ -405,7 +374,7 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   cursor: pointer;
   font-family: 'Orbitron';
   font-size: 0.9rem;
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
@@ -417,35 +386,12 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   transform: translateY(-3px);
 }
 
-.btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  border-color: var(--text-dim);
-}
-
-.btn:active { transform: translateY(0); }
-
-.neon-toast {
-  position: fixed;
-  top: 30px;
-  right: 30px;
-  padding: 20px 35px;
-  background: var(--bg-card);
-  border: 1px solid var(--neon-pink);
-  box-shadow: 0 0 20px var(--neon-pink);
-  z-index: 3000;
-  animation: fadeIn 0.3s ease-out;
-  border-radius: 4px;
-}
-
 /* ============================================================
-   8. MOBILE RESPONSIVE (MAX-WIDTH 768PX)
+   8. MOBILE RESPONSIVE OVERRIDES
    ============================================================ */
 @media (max-width: 768px) {
-  .app-shell {
-    flex-direction: column;
-    height: auto;
-  }
+  body, html { overflow-y: auto; }
+  .app-shell { flex-direction: column; height: auto; }
 
   .sidebar {
     width: 100%;
@@ -455,19 +401,20 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
     height: auto;
   }
 
-  .instruct-box, .cheat-box, .score-info-box {
-    display: none;
+  .instruct-box, .cheat-box, .score-info-box { display: none; }
+
+  .container {
+    padding: 30px 10px 80px 10px;
+    height: auto;
+    justify-content: flex-start;
   }
 
   .neon-text { font-size: 1.8rem; margin-top: 20px; }
 
-  .container {
-    padding: 30px 10px 80px 10px;
-    justify-content: flex-start;
-  }
-
-  /* Scale the board for small screens */
+  /* Mobile Geometry Fix: Use screen width instead of fixed desktop px */
   .board {
+    width: 94vw;
+    height: 94vw;
     border-width: 3px;
     padding: 3px;
   }
@@ -477,16 +424,21 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   .stats-bar { font-size: 1.1rem; gap: 20px; margin-bottom: 20px; }
 
   .buttons-grid {
+    width: 94vw;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
 }
 
-/* Final Animation Class for JS logic */
-.cell-error {
-  animation: error-shake 0.4s ease-in-out;
+.neon-toast {
+  position: fixed;
+  top: 30px; right: 30px;
+  padding: 20px 35px;
+  background: #000;
+  border: 1px solid var(--neon-pink);
+  box-shadow: 0 0 20px var(--neon-pink);
+  z-index: 5000;
+  animation: fadeIn 0.3s ease-out;
 }
 
-.cell-success {
-  animation: success-pop 0.5s ease-out;
-}
+.cell-error { animation: error-shake 0.4s ease-in-out; }

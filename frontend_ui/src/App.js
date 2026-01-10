@@ -5,7 +5,7 @@ import './App.css';
 const API_BASE = "https://ushan256-sudoku.hf.space";
 
 function App() {
-  // CRASH FIX: Initialize initialGrid as a 9x9 matrix instead of []
+  // Logic: Matrix initialization as per your previous stable version
   const [grid, setGrid] = useState(Array(9).fill(0).map(() => Array(9).fill(0)));
   const [initialGrid, setInitialGrid] = useState(Array(9).fill(0).map(() => Array(9).fill(0)));
   
@@ -26,14 +26,13 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [hintedCell, setHintedCell] = useState(null);
 
-  // Responsive UI Listener
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Leaderboard Persistence
+  // Logic: Leaderboard persistence as per your previous code
   const [leaderboard, setLeaderboard] = useState(() => {
     const saved = localStorage.getItem("neon_sudoku_leaderboard");
     return saved ? JSON.parse(saved) : [];
@@ -54,7 +53,6 @@ function App() {
     if (playerName.length > 2) {
       setIsLoggedIn(true);
       showToast(`Welcome Back, ${playerName}`);
-      // Initialize player in leaderboard if new
       setLeaderboard(prev => {
         if (!prev.find(p => p.name === playerName)) {
             return [...prev, { name: playerName, best: 0, time: Infinity }].sort((a,b) => b.best - a.best);
@@ -81,11 +79,9 @@ function App() {
       const res = await axios.get(`${API_BASE}/generate/${difficulty}`);
       const newGrid = res.data.grid;
       const solRes = await axios.post(`${API_BASE}/solve`, { grid: newGrid });
-      
       setSolution(solRes.data.solution);
       setGrid(newGrid);
       setInitialGrid(newGrid.map(row => [...row])); 
-      
       setTimer(0); setScore(0); setMistakes(0);
       setIsPaused(false); setIsGameEnded(false); setShowVictory(false);
       setGameStarted(true); 
@@ -93,26 +89,19 @@ function App() {
     } catch (err) { showToast("Backend Offline!"); }
   }, [difficulty, isLoggedIn]);
 
-  // NATIVE KEYBOARD HANDLER: Supports backspace and number entry
   const handleInput = useCallback((row, col, value) => {
     if (!gameStarted || isGameEnded || isPaused || initialGrid[row][col] !== 0) return;
-    
-    // Handle deletion
     if (value === "") {
       const n = [...grid]; n[row][col] = 0; setGrid(n);
       return;
     }
-
     const lastChar = value.slice(-1);
     const num = parseInt(lastChar);
-    
     if (isNaN(num) || num === 0) return;
-
     const isCorrect = num === solution[row][col];
     const newGrid = [...grid];
     newGrid[row][col] = num;
     setGrid(newGrid);
-
     if (isCorrect) {
       setScore(prev => prev + 100);
       showToast("Correct! +100");
@@ -129,12 +118,10 @@ function App() {
       const res = await axios.post(`${API_BASE}/hint?row=${selected.r}&col=${selected.c}`, { grid });
       const n = [...grid];
       n[selected.r][selected.c] = res.data.value;
-      
       setHintedCell(`${selected.r}-${selected.c}`);
       setGrid(n);
       setScore(prev => prev - 50);
       showToast("AI Hint Used (-50)");
-      
       setTimeout(() => setHintedCell(null), 1500);
     } catch (err) { showToast("Hint Error"); }
   }, [selected, grid, isGameEnded, isPaused, gameStarted]);
@@ -149,24 +136,22 @@ function App() {
     } catch (err) { showToast("AI Solve Error"); }
   }, [solution, gameStarted, isGameEnded, score, user, updateBestScore]);
 
-  const handleKeyDown = useCallback((e) => {
-    if (!isLoggedIn || showVictory) return;
-    if (e.key === 'n') fetchNewGame();
-    if (!gameStarted || isPaused || isGameEnded) return;
-    
-    const { r, c } = selected;
-    if (e.key === 'ArrowUp') setSelected({ r: Math.max(0, r - 1), c });
-    if (e.key === 'ArrowDown') setSelected({ r: Math.min(8, r + 1), c });
-    if (e.key === 'ArrowLeft') setSelected({ r, c: Math.max(0, c - 1) });
-    if (e.key === 'ArrowRight') setSelected({ r, c: Math.min(8, c + 1) });
-    
-    if (/[1-9]/.test(e.key)) handleInput(r, c, e.key);
-  }, [isLoggedIn, showVictory, fetchNewGame, gameStarted, isPaused, isGameEnded, selected, handleInput]);
-
   useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isLoggedIn || showVictory) return;
+      if (e.key === 'n') fetchNewGame();
+      if (!gameStarted || isPaused || isGameEnded) return;
+      const { r, c } = selected;
+      if (e.key === 'ArrowUp') setSelected({ r: Math.max(0, r - 1), c });
+      if (e.key === 'ArrowDown') setSelected({ r: Math.min(8, r + 1), c });
+      if (e.key === 'ArrowLeft') setSelected({ r, c: Math.max(0, c - 1) });
+      if (e.key === 'ArrowRight') setSelected({ r, c: Math.min(8, c + 1) });
+      if (/[1-9]/.test(e.key)) handleInput(r, c, e.key);
+      if (e.key === 'h') getHint();
+    };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+  }, [isLoggedIn, showVictory, fetchNewGame, gameStarted, isPaused, isGameEnded, selected, handleInput, getHint]);
 
   useEffect(() => {
     let interval;
@@ -226,9 +211,11 @@ function App() {
         <section className="difficulty-box">
           <h3>DIFFICULTY</h3>
           <select className="diff-select" value={difficulty} onChange={(e) => setDifficulty(parseInt(e.target.value))}>
-            <option value={20}>Very Easy</option>
-            <option value={40}>Normal</option>
-            <option value={60}>Hard Mode</option>
+            <option value={15}>Beginner (15)</option>
+            <option value={30}>Easy (30)</option>
+            <option value={45}>Intermediate (45)</option>
+            <option value={55}>Hard (55)</option>
+            <option value={65}>Extreme (65)</option>
           </select>
         </section>
 
@@ -255,14 +242,13 @@ function App() {
         </div>
 
         <div className="board-wrapper">
-          {!gameStarted && <div className="board-overlay">TAP 'NEW GAME'</div>}
+          {!gameStarted && <div className="board-overlay">INITIALIZE [N]</div>}
           <div className="board" style={{ filter: (isPaused || !gameStarted || showVictory) ? 'blur(10px)' : 'none' }}>
             {grid.map((row, ri) => row.map((cell, ci) => (
                 <input
                   key={`${ri}-${ci}`}
                   type="text"
                   inputMode="numeric"
-                  pattern="[1-9]*"
                   className={`cell-input 
                     ${initialGrid[ri][ci] !== 0 ? "fixed" : "user"} 
                     ${selected.r === ri && selected.c === ci ? "active" : ""}
