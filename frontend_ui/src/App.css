@@ -14,11 +14,11 @@
 }
 
 .light-mode {
-  --bg-dark: #f0f2f5;
+  --bg-dark: #f8fafc;
   --bg-card: #ffffff;
-  --text-main: #1a1a1a;
-  --neon-blue: #0056b3;
-  --neon-pink: #d1105a;
+  --text-main: #0b0b0b;
+  --neon-blue: #00d7ff; /* brighter */
+  --neon-pink: #ff2ea6; /* brighter */
   --sidebar-bg: rgba(0, 86, 179, 0.1);
   --cell-border: #cccccc;
   --cell-bg: #ffffff;
@@ -125,10 +125,10 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
 /* Highlights */
 .cell-input.active { background: rgba(255, 0, 119, 0.2) !important; box-shadow: inset 0 0 8px var(--neon-pink); }
 .cell-input.fixed {
-  color: #001219 !important;
+  color: var(--neon-blue) !important;
   font-weight: 900;
-  background: rgba(0, 242, 255, 0.10); /* light blue, not neon cover */
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--cell-bg); /* keep fixed/generated cells black or same as board cells */
+  border: 1px solid rgba(255,255,255,0.04);
   background-clip: padding-box; /* prevent background bleeding over borders */
 }
 

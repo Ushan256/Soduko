@@ -77,6 +77,7 @@ function App() {
       setInitialGrid(res.data.grid.map(row => [...row]));
       setTimer(0); setScore(0);
       setIsPaused(false); setIsGameEnded(false); setShowVictory(false);
+      setResultModal({ open: false, type: '', message: '', score: 0 });
       setGameStarted(true); 
       showToast("System Online");
     } catch (err) { showToast("Backend Error"); }
@@ -103,19 +104,54 @@ function App() {
       setGrid(solved);
       setInitialGrid(solved.map(row => Array.isArray(row) ? [...row] : []));
       setSolution(solved);
-      setScore(s => s - 500); // allow negative totals after full cheat
-      setShowVictory(true);
-      setIsGameEnded(true);
-      // show result modal with final score
+      // deduct score and show modal
       setScore(prev => {
         const ns = prev - 500;
         setResultModal({ open: true, type: 'win', message: 'Solved by AI', score: ns });
         return ns;
       });
+      setShowVictory(true);
+      setIsGameEnded(true);
       showToast("Solved by AI");
     } catch (err) { showToast("Cheat failed"); }
     finally { setCheatLoading(false); }
   };
+
+  const applyValidationResult = (resultText) => {
+    if (resultText === 'Win') {
+      setIsGameEnded(true);
+      setShowVictory(true);
+      // update leaderboard for current user
+      setLeaderboard(prev => {
+        if (!user) return prev;
+        const exists = prev.find(p => p.name === user.trim());
+        if (exists) {
+          return prev.map(p => p.name === user.trim() ? { ...p, best: Math.max(p.best, score) } : p).sort((a,b)=>b.best-a.best);
+        }
+        return [...prev, { name: user.trim(), best: score }].sort((a,b)=>b.best-a.best);
+      });
+      setResultModal({ open: true, type: 'win', message: 'You solved the puzzle', score });
+    } else {
+      setIsGameEnded(true);
+      setResultModal({ open: true, type: 'lose', message: resultText || 'Game ended', score });
+    }
+  };
+
+  // Auto-validate when board is completely filled
+  useEffect(() => {
+    if (!gameStarted || isGameEnded) return;
+    const flat = grid.flat();
+    const filled = flat.every(v => v !== 0 && v !== null && v !== undefined);
+    if (filled) {
+      // run validation
+      axios.post(`${API_BASE}/validate`, { grid }).then(r => {
+        const res = r.data && r.data.result ? r.data.result : 'Invalid';
+        applyValidationResult(res);
+      }).catch(() => {
+        applyValidationResult('Validation failed');
+      });
+    }
+  }, [grid, gameStarted, isGameEnded]);
 
   const handleInput = (row, col, value) => {
     if (!gameStarted || isPaused || isGameEnded || initialGrid[row][col] !== 0) return;
