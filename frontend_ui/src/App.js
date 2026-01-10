@@ -77,7 +77,7 @@ function App() {
       const res = await axios.post(`${API_BASE}/solve`, { grid });
       setGrid(res.data.solution);
       setInitialGrid(res.data.solution.map(row => [...row]));
-      setScore(s => Math.max(0, s - 500));
+      setScore(s => s - 500); // allow negative totals after full cheat
       setShowVictory(true);
       setIsGameEnded(true);
       showToast("Solved by AI");
@@ -179,14 +179,16 @@ function App() {
         <section className="instructions">
           <h3>INSTRUCTIONS</h3>
           <div className="instr-text">
-            - Enter numbers 1-9 into empty cells.
-            <br/>- Correct entry: +100, Mistake: -25
-            <br/>- Hint: -50, Cheat (solve): -500
+            <div>- Enter numbers 1-9 into empty cells.</div>
+            <div>- Correct entry: +100</div>
+            <div>- Mistake: -25</div>
+            <div>- Hint: -50</div>
+            <div>- Cheat (solve): -500</div>
           </div>
-          <button className="btn small" onClick={handleCheat}>CHEAT: SOLVE BOARD</button>
+          <button className="btn small cheat" onClick={handleCheat}>CHEAT: SOLVE BOARD</button>
         </section>
 
-        <button className="btn" style={{marginTop:'8px'}} onClick={()=>setIsLoggedIn(false)}>LOGOUT</button>
+        <button className="btn logout-btn" onClick={()=>setIsLoggedIn(false)}>LOGOUT</button>
       </aside>
 
       <main className="container">
